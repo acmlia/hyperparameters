@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # Loading the libraries to be used: 
-import numpy
+import numpy as np
 import pandas as pd
 import os
 import time
@@ -51,19 +51,19 @@ class TuningBatchEpoch:
 
         # Fix random seed for reproducibility:
         seed = 7
-        numpy.random.seed(seed)
+        np.random.seed(seed)
 
         # Load dataset:
         path = '/media/DATA/tmp/datasets/regional/qgis/rain/'
         file = 'yearly_br_rain_var2d_OK.csv'
-        df = pd.read_csv(os.path.join(path, file), sep=',', decimal='.', )
+        df = pd.read_csv(os.path.join(path, file), sep=',', decimal='.')
 
         # Split into input (X) and output (Y) variables:
-        cols = df[['36V', '36H', '89V', '89H', '166V', '166H', '190V', '10VH', '18VH', '36VH', '89VH', '166VH', '183VH',
+        df2 = df[['36V', '36H', '89V', '89H', '166V', '166H', '190V', '36VH', '89VH', '166VH', '183VH',
                    'PCT10', 'PCT18', 'PCT36', 'PCT89']]
-        x = df.reindex(columns=cols)
-        x = df[['36V', '36H', '89V', '89H', '166V', '166H', '190V', '10VH', '18VH', '36VH', '89VH', '166VH', '183VH',
-                'PCT10', 'PCT18', 'PCT36', 'PCT89']].values
+        #x = df2.reindex(columns=cols)
+        x = df2[['36V', '36H', '89V', '89H', '166V', '166H', '190V', '36VH', '89VH', '166VH', '183VH',
+                'PCT10', 'PCT18', 'PCT36', 'PCT89']]
         y = df[['sfcprcp']]
 
         # Scaling the input paramaters:
@@ -74,7 +74,7 @@ class TuningBatchEpoch:
         x_train, x_test, y_train, y_test = train_test_split(x_scaled, y, test_size=0.25, random_state=101)
 
         # Create the instance for KerasRegressor:
-        model = KerasRegressor(build_fn=self.create_model, verbose=0)
+        model = KerasRegressor(build_fn=model, verbose=0)
 
         # Define the grid search parameters:
         batch_size = [10, 20, 40, 60, 80, 100]
