@@ -36,7 +36,7 @@ class TuningBatchEpoch:
 		'''
         # Create the Keras model:
         model = Sequential()
-        model.add(Dense(8, input_dim=17, activation='tanh'))
+        model.add(Dense(8, input_dim=15, activation='tanh'))
         model.add(Dense(8, activation='tanh'))
         model.add(Dense(1, activation='linear'))
         # Compile model
@@ -63,7 +63,7 @@ class TuningBatchEpoch:
                    'PCT10', 'PCT18', 'PCT36', 'PCT89']]
         #x = df2.reindex(columns=cols)
         x = df2[['36V', '36H', '89V', '89H', '166V', '166H', '190V', '36VH', '89VH', '166VH', '183VH',
-                'PCT10', 'PCT18', 'PCT36', 'PCT89']]
+                'PCT10', 'PCT18', 'PCT36', 'PCT89']].values
         y = df[['sfcprcp']]
 
         # Scaling the input paramaters:
@@ -74,7 +74,7 @@ class TuningBatchEpoch:
         x_train, x_test, y_train, y_test = train_test_split(x_scaled, y, test_size=0.25, random_state=101)
 
         # Create the instance for KerasRegressor:
-        model = KerasRegressor(build_fn=model, verbose=0)
+        model = KerasRegressor(build_fn=self.create_model, verbose=0)
 
         # Define the grid search parameters:
         batch_size = [10, 20, 40, 60, 80, 100]
