@@ -75,8 +75,8 @@ class TuningBatchEpoch:
         model = KerasRegressor(build_fn=self.create_model, verbose=0)
 
         # Define the grid search parameters:
-        batch_size = [10, 20, 40, 60, 80, 100]
-        epochs = [10, 50, 100]
+        batch_size = [10, 100, 200, 500, 1000]
+        epochs = [100, 500, 1000, 1500]
         param_grid = dict(batch_size=batch_size, epochs=epochs)
         grid_model = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1)
         grid_result = grid_model.fit(x_train, y_train)
@@ -87,7 +87,6 @@ class TuningBatchEpoch:
         params = grid_result.cv_results_['params']
         for mean, stdev, param in zip(means, stds, params):
             print("%f (%f) with: %r" % (mean, stdev, param))
-           
         return grid_result
     
     
@@ -103,7 +102,7 @@ class TuningBatchEpoch:
         params = grid_result.cv_results_['params']
         for mean, stdev, param in zip(means, stds, params):
             print("%f (%f) with: %r" % (mean, stdev, param))
-           
+    
 
 # summarize results
 
@@ -126,7 +125,7 @@ if __name__ == '__main__':
 
     training_model = TuningBatchEpoch()
     grid_result = training_model.run_TuningBatchEpoch()
-    joblib.dump(grid_result, 'model_trained_batch_epoch_A.pkl')
+    joblib.dump(grid_result, 'model_trained_batch_epoch_A1.pkl')
 
     tac() 
 
