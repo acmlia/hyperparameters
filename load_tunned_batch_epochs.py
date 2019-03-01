@@ -113,10 +113,10 @@ if __name__ == '__main__':
 
     tic()
 
-    training_model = TuningBatchEpoch()
+    #training_model = TuningBatchEpoch()
     #model_trained = training_model.run_TuningBatchEpoch()
     try:
-        temp = joblib.load('/mnt/AC9AF51E9AF4E5AC/repos/hyperparameters/modelomozao.pkl')
+        temp = joblib.load('modelomozao.pkl')
     except:
         print('fail )-:')
     tac()
