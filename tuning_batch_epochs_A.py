@@ -34,12 +34,13 @@ class TuningBatchEpoch:
 		 Fucntion to create the instance and configuration of the keras
 		 model(Sequential and Dense).
 		'''
-        # Create the Keras model:
+        
+        # Function to create model, required for KerasRegressor:
         model = Sequential()
         model.add(Dense(5, input_dim=9, activation='tanh'))
         model.add(Dense(5, activation='tanh'))
         model.add(Dense(1, activation='linear'))
-        # Compile model
+        # Compile model:
         model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         return model
 
