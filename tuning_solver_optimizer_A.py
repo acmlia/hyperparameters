@@ -8,10 +8,17 @@ Created on Fri Mar  1 17:26:23 2019
 
 # ------------------------------------------------------------------------------
 # Loading the libraries to be used: import numpy
+import numpy as np
+import pandas as pd
+import os
+import time
 from sklearn.model_selection import GridSearchCV
 from keras.models import Sequential
 from keras.layers import Dense
-from keras.wrappers.scikit_learn import KerasClassifier
+from keras.wrappers.scikit_learn import KerasRegressor
+from sklearn.externals import joblib
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 # ------------------------------------------------------------------------------
 
 def tic():
@@ -28,22 +35,25 @@ def tac():
 
 class TuningSolverOptimizer:
     
-    def create_model(optimizer='adam'):
-        
+    def create_model(self, optimizer = 'Adam'):
+
         # Function to create model, required for KerasRegressor:
-    	model = Sequential()
-    	model.add(Dense(5, input_dim=9, activation='tanh'))
+        model = Sequential()
+        model.add(Dense(5, input_dim=9, activation='tanh'))
         model.add(Dense(5, activation='tanh'))
-    	model.add(Dense(1, activation='linear'))
-    	# Compile model:
-    	model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
-    	return model 
+        model.add(Dense(1, activation='linear'))
+        # Compile model:
+        model.compile(loss='binary_crossentropy', optimizer='Adam', metrics=['accuracy'])
+        return model 
     
     def run_TuningSolverOptimizer(self):
         '''
 		Fucntion to create the instance and configuration of the KerasRegressor
 		model(keras.wrappers.scikit_learn).
 		'''
+        # Fix random seed for reproducibility:
+        seed = 7
+        np.random.seed(seed)
         
          # Load dataset:
         path = '/media/DATA/tmp/datasets/regional/qgis/rain/'
@@ -64,14 +74,13 @@ class TuningSolverOptimizer:
         x_train, x_test, y_train, y_test = train_test_split(x_scaled, y, test_size=0.25, random_state=101)
 
         # Create the instance for KerasRegressor:
-        model = KerasRegressor(build_fn=self.create_model, verbose=0)
-        model = KerasClassifier(build_fn=create_model, epochs=1000, batch_size=10, verbose=0)
+        model = KerasRegressor(build_fn=self.create_model, epochs=1000, batch_size=10, verbose=0)
         
         # Define the grid search parameters:
         optimizer = ['SGD', 'RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax', 'Nadam']
-        param_grid = dict(optimizer=optimizer)
+        param_grid = dict(optimizer = optimizer)
         grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1)
-        grid_result = grid.fit(X, Y)
+        grid_result = grid.fit(x_train, y_train)
         
         # summarize results
         print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
@@ -79,7 +88,7 @@ class TuningSolverOptimizer:
         stds = grid_result.cv_results_['std_test_score']
         params = grid_result.cv_results_['params']
         for mean, stdev, param in zip(means, stds, params):
-        print("%f (%f) with: %r" % (mean, stdev, param))
+            print("%f (%f) with: %r" % (mean, stdev, param))
         
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -89,8 +98,8 @@ if __name__ == '__main__':
 
     tic()
 
-    training_model = TuningBatchEpoch()
-    grid_result = training_model.run_TuningBatchEpoch()
+    training_model = TuningSolverOptimizer()
+    grid_result = training_model.run_TuningSolverOptimizer()
     joblib.dump(grid_result, 'model_trained_solver_optimizer_A.pkl')
 
     tac() 
