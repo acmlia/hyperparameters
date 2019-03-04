@@ -47,7 +47,7 @@ class TuningWeightInitialization:
         numpy.random.seed(seed)
 
         # Load dataset:
-        path = '/media/DATA/tmp/datasets/brazil/qgis/rain/'
+        path = '/home/david/DATA/'
         file = 'yearly_br_rain_var2d_OK.csv'
         df = pd.read_csv(os.path.join(path, file), sep=',', decimal='.')
 
@@ -64,7 +64,7 @@ class TuningWeightInitialization:
         x_train, x_test, y_train, y_test = train_test_split(x_scaled, y, test_size=0.25, random_state=101)
 
         # Create the instance for KerasRegressor:
-        model = Kerasregressor(build_fn=self.create_model, epochs=100, batch_size=10, verbose=0)
+        model = KerasRegressor(build_fn=self.create_model, epochs=100, batch_size=10, verbose=0)
 
         # Define the grid search parameters:
         init_mode = ['uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal', 'glorot_uniform', 'he_normal', 'he_uniform']
@@ -78,7 +78,7 @@ class TuningWeightInitialization:
         stds = grid_result.cv_results_['std_test_score']
         params = grid_result.cv_results_['params']
         for mean, stdev, param in zip(means, stds, params):
-        print("%f (%f) with: %r" % (mean, stdev, param))
+            print("%f (%f) with: %r" % (mean, stdev, param))
 
 
 # ------------------------------------------------------------------------------
