@@ -1,5 +1,3 @@
-
-
 # ------------------------------------------------------------------------------
 # Loading the libraries to be used: import numpy
 import numpy as np
@@ -10,7 +8,7 @@ from sklearn.model_selection import GridSearchCV
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasRegressor
-from keras.optimizers import SGDni  nex
+from keras.optimizers import SGD
 from sklearn.externals import joblib
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
@@ -27,25 +25,26 @@ def tac():
     (t_hour, t_min) = divmod(t_min, 60)
     print('Time passed: {}hour:{}min:{}sec'.format(t_hour, t_min, t_sec))
 
-class TuningLearningRateMomentum:
+class TuningWeightInitialization:
 
-    def create_model(self, learn_rate=0.01, momentum=0):
+    def create_model(init_mode='uniform'):
 
         # Function to create model, required for KerasRegressor:
         model = Sequential()
-        model.add(Dense(5, input_dim=9, activation='tanh'))
-        model.add(Dense(5, activation='tanh'))
-        model.add(Dense(1, activation='linear'))
+        model.add(Dense(5, input_dim=9, kernel_initializer=init_mode, activation='tanh'))
+        model.add(Dense(5, kernel_initializer=init_mode, activation='tanh'))
+        model.add(Dense(1, kernel_initializer=init_mode, activation='linear'))
         # Compile model
-        optimizer = SGD(lr=learn_rate, momentum=momentum)
-        model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         return model
 
-    def run_TuningLearningRateMomentum(self):
+
+    def run_TuningWeightInitialization(self):
+
 
         # Fix random seed for reproducibility:
         seed = 7
-        np.random.seed(seed)
+        numpy.random.seed(seed)
 
         # Load dataset:
         path = '/media/DATA/tmp/datasets/brazil/qgis/rain/'
@@ -65,22 +64,22 @@ class TuningLearningRateMomentum:
         x_train, x_test, y_train, y_test = train_test_split(x_scaled, y, test_size=0.25, random_state=101)
 
         # Create the instance for KerasRegressor:
-        model = KerasRegressor(build_fn=self.create_model, epochs=100, batch_size=10, verbose=0)
+        model = Kerasregressor(build_fn=self.create_model, epochs=100, batch_size=10, verbose=0)
 
         # Define the grid search parameters:
-        learn_rate = [0.001, 0.01, 0.1, 0.2, 0.3]
-        momentum = [0.0, 0.2, 0.4, 0.6, 0.8, 0.9]
-        param_grid = dict(learn_rate=learn_rate, momentum=momentum)
+        init_mode = ['uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal', 'glorot_uniform', 'he_normal', 'he_uniform']
+        param_grid = dict(init_mode=init_mode)
         grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1)
         grid_result = grid.fit(x_train, y_train)
 
-        # Summarize results:
+        # summarize results
         print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
         means = grid_result.cv_results_['mean_test_score']
         stds = grid_result.cv_results_['std_test_score']
         params = grid_result.cv_results_['params']
         for mean, stdev, param in zip(means, stds, params):
-            print("%f (%f) with: %r" % (mean, stdev, param))
+        print("%f (%f) with: %r" % (mean, stdev, param))
+
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -90,9 +89,9 @@ if __name__ == '__main__':
 
     tic()
 
-    training_model = TuningLearningRateMomentum()
-    grid_result = training_model.run_TuningLearningRateMomentum()
-    joblib.dump(grid_result, 'model_trained_learning_rate_momentum_A.pkl')
+    training_model = TuningWeightInitialization()
+    grid_result = training_model.run_TuningWeightInitialization()
+    joblib.dump(grid_result, 'model_trained_weight_initialization_A.pkl')
 
     tac()
 
