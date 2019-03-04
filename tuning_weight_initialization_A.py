@@ -27,7 +27,7 @@ def tac():
 
 class TuningWeightInitialization:
 
-    def create_model(init_mode='uniform'):
+    def create_model(self, init_mode='uniform'):
 
         # Function to create model, required for KerasRegressor:
         model = Sequential()
