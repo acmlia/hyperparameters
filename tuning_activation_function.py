@@ -30,7 +30,7 @@ class TuningActivationFunction:
 
     # Function to create model, required for KerasRegressor:
 
-    def create_model(activation='relu'):
+    def create_model(self, activation='relu'):
     # create model
     model.add(Dense(5, input_dim=9, kernel_initializer='uniform', activation=activation))
     model.add(Dense(5, kernel_initializer='uniform', activation='activation'))
@@ -39,6 +39,8 @@ class TuningActivationFunction:
     # Compile model
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
+
+    def run_TuningActivationFunction(self):
 
     # Fix random seed for reproducibility:
     seed = 7
@@ -78,3 +80,20 @@ class TuningActivationFunction:
     params = grid_result.cv_results_['params']
     for mean, stdev, param in zip(means, stds, params):
     print("%f (%f) with: %r" % (mean, stdev, param))
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# Saving a model
+if __name__ == '__main__':
+    _start_time = time.time()
+
+    tic()
+
+    training_model = TuningActivationFunction()
+    grid_result = training_model.run_TuningActivationFunction()
+    joblib.dump(grid_result, 'model_trained_activation_function_A.pkl')
+
+    tac()
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
