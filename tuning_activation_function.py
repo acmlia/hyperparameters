@@ -48,7 +48,7 @@ class TuningActivationFunction:
         np.random.seed(seed)
 
         # Load dataset:
-        path = '/media/DATA/tmp/datasets/brazil/qgis/rain/'
+        path = '/media/david/DATA/'
         file = 'yearly_br_rain_var2d_OK.csv'
         df = pd.read_csv(os.path.join(path, file), sep=',', decimal='.')
 
