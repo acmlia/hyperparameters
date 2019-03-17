@@ -1,0 +1,12 @@
+# TESTES INICIAIS:
+
+Best_param:
+
+1) Batch Size e Number of Epochs:          10 e 1000
+2) Solver - Optimizer:                     SGD --> AdaGrad --> Adam
+3) Learning Rate and Momentum:             0.2 e 0.2
+4) Weight Initialization:                  uniform
+5) Activation Function:                    relu
+6) Dropout Regularization:                 0.1
+7) Number of Neurons in the hidden layer:  15
+

@@ -12,7 +12,6 @@ from sklearn.externals import joblib
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
-
 # ------------------------------------------------------------------------------
 
 def tic():
@@ -92,53 +91,81 @@ class TuningBatchEpoch:
         return grid_result
     
     
-    def Scores(self):
+    def LoadTrainedModel(self):
         '''
-		 Fucntion to verify the scores from GridSearch CV on the trained
-         model configurations.
+		 Fucntion to load trained model and verify the model performance on the
+         test dataset.
 	    '''
+        # Loading a model
+        path = '/media/DATA/tmp/git-repositories/models_pkl/PKLs/'
+        file = 'model_trained_batch_epoch_A.pkl'
+        model_path = path+file
+        model = joblib.load(model_path)
         
-        print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
-        means = grid_result.cv_results_['mean_test_score']
-        stds = grid_result.cv_results_['std_test_score']
-        params = grid_result.cv_results_['params']
-        for mean, stdev, param in zip(means, stds, params):
-            print("%f (%f) with: %r" % (mean, stdev, param))
-           
+        # Fix random seed for reproducibility:
+        seed = 7
+        np.random.seed(seed)
 
-# summarize results
+        # Load dataset:
+        df_path = '/media/DATA/tmp/datasets/brazil/qgis/rain/'
+        df_file = 'yearly_br_rain_var2d_OK.csv'
+        df = pd.read_csv(os.path.join(df_path, df_file), sep=',', decimal='.')
 
+        # Split into input (X) and output (Y) variables:
+        df2 = df[['36V', '36H', '89V', '89H', '166V', '166H', '190V','PCT36','PCT89']]
+        #x = df2.reindex(columns=cols)
+        x = df2[['36V', '36H', '89V', '89H', '166V', '166H', '190V','PCT36','PCT89']]
+        y = df[['sfcprcp']]
 
-#    print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
-#    means = grid_result.cv_results_['mean_test_score']
-#    stds = grid_result.cv_results_['std_test_score']
-#    params = grid_result.cv_results_['params']
-#    for mean, stdev, param in zip(means, stds, params):
-#        print("%f (%f) with: %r" % (mean, stdev, param))
+        # Scaling the input paramaters:
+        scaler = StandardScaler()
+        x_scaled = scaler.fit_transform(x)
 
+        # Split the dataset in test and train samples:
+        x_train, x_test, y_train, y_test = train_test_split(x_scaled, y, test_size=0.25, random_state=101)
 
+        # Applying model prediction on the test dataset:
+        
+        predictions = model.predict(x_test)
+        #print(classification_report(y_test, predictions))
+        #print(confusion_matrix(y_test, predictions))
+
+        return predictions, y_test        
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+recurso = TuningBatchEpoch()
+resultados, y_test = recurso.LoadTrainedModel()
+    
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
+        
+        
+        
+
+#    print("Eu sou main!")
+#     _start_time = time.time()
+
+    # tic()
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # Saving a model
-if __name__ == '__main__':
-    _start_time = time.time()
-
-    tic()
-
-    training_model = TuningBatchEpoch()
-    grid_result = training_model.run_TuningBatchEpoch()
-    joblib.dump(grid_result, 'model_trained_batch_epoch_A.pkl')
-
-    tac() 
+#if __name__ == '__main__':
+    #
+    # training_model = TuningBatchEpoch()
+    # grid_result = training_model.run_TuningBatchEpoch()
+    # joblib.dump(grid_result, 'model_trained_batch_epoch_A.pkl')
+    #
+    # tac()
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------      
 # Loading a model
-# loaded_model = joblib.load('picles_do_satanas.pkl')
-# pickle.dump(model, open('model_trained.sav', 'wb'))
-
+# loaded_model = joblib.load('/media/DATA/tmp/git-repositories/models_pkl/PKLs/model_trained_batch_epoch_A.pkl')
+# pickle.dump(model, open('model_traine
 #if __name__ == '__main__':
-#    _start_time = time.time()
+#    _start_time = time.time()d.sav', 'wb'))
+
 #
 #    training_model = TuningBatchEpoch()
 #    #model_trained = training_model.run_TuningBatchEpoch()

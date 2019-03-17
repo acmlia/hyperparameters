@@ -1,4 +1,3 @@
-
 # ------------------------------------------------------------------------------
 # Loading the libraries to be used: import numpy
 import numpy as np
@@ -12,6 +11,8 @@ from keras.wrappers.scikit_learn import KerasRegressor
 from sklearn.externals import joblib
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from keras.layers import Dropout
+from keras.constraints import maxnorm
 # ------------------------------------------------------------------------------
 
 def tic():
@@ -26,29 +27,30 @@ def tac():
     print('Time passed: {}hour:{}min:{}sec'.format(t_hour, t_min, t_sec))
 
 
-class TuningActivationFunction:
+class TuningNeuronsLayers:
 
-    # Function to create model, required for KerasRegressor:
+    # Function to create model, required for KerasRegressor
+    def create_model(self, neurons=1):
 
-    def create_model(self, activation='relu'):
         # create model
         model = Sequential()
-        model.add(Dense(5, input_dim=9, kernel_initializer='uniform', activation=activation))
-        model.add(Dense(5, kernel_initializer='uniform', activation=activation))
-        model.add(Dense(1, activation='linear'))
+        model.add(Dense(neurons, input_dim=9, kernel_initializer='uniform', activation='tanh', kernel_constraint=maxnorm(4)))
+        model.add(Dropout(0.2))
+        model.add(Dense(1, kernel_initializer='uniform', activation='linear'))
 
-    # Compile model
+        # Compile model
         model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         return model
 
-    def run_TuningActivationFunction(self):
+
+    def run_TuningNeuronsLayers(self):
 
         # Fix random seed for reproducibility:
         seed = 7
         np.random.seed(seed)
 
         # Load dataset:
-        path = '/media/david/DATA/'
+        path = '/home/david/DATA/'
         file = 'yearly_br_rain_var2d_OK.csv'
         df = pd.read_csv(os.path.join(path, file), sep=',', decimal='.')
 
@@ -65,12 +67,12 @@ class TuningActivationFunction:
         # Split the dataset in test and train samples:
         x_train, x_test, y_train, y_test = train_test_split(x_scaled, y, test_size=0.25, random_state=101)
 
-        # Create the instance for KerasRegressor:
-        model = KerasRegressor(build_fn=self.create_model, epochs=1000, batch_size=10, verbose=0)
+        # create model
+        model = KerasRegressor(build_fn=self.create_model, epochs=100, batch_size=10, verbose=0)
 
-        # Define the grid search parameters
-        activation = ['softmax', 'softplus', 'softsign', 'relu', 'tanh', 'sigmoid', 'hard_sigmoid', 'linear']
-        param_grid = dict(activation=activation)
+        # define the grid search parameters
+        neurons = [1, 5, 10, 15, 20, 25, 30]
+        param_grid = dict(neurons=neurons)
         grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1)
         grid_result = grid.fit(x_train, y_train)
 
@@ -90,9 +92,9 @@ if __name__ == '__main__':
 
     tic()
 
-    training_model = TuningActivationFunction()
-    grid_result = training_model.run_TuningActivationFunction()
-    joblib.dump(grid_result, 'model_trained_activation_function_A.pkl')
+    training_model = TuningNeuronsLayers()
+    grid_result = training_model.run_TuningNeuronsLayers()
+    joblib.dump(grid_result, 'model_trained_neurons_layers_A.pkl')
 
     tac()
 

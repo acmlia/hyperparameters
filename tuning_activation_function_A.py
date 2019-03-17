@@ -1,5 +1,4 @@
 
-
 # ------------------------------------------------------------------------------
 # Loading the libraries to be used: import numpy
 import numpy as np
@@ -10,7 +9,6 @@ from sklearn.model_selection import GridSearchCV
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasRegressor
-from keras.optimizers import SGDni  nex
 from sklearn.externals import joblib
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
@@ -27,34 +25,37 @@ def tac():
     (t_hour, t_min) = divmod(t_min, 60)
     print('Time passed: {}hour:{}min:{}sec'.format(t_hour, t_min, t_sec))
 
-class TuningLearningRateMomentum:
 
-    def create_model(self, learn_rate=0.01, momentum=0):
+class TuningActivationFunction:
 
-        # Function to create model, required for KerasRegressor:
+    # Function to create model, required for KerasRegressor:
+
+    def create_model(self, activation='relu'):
+        # create model
         model = Sequential()
-        model.add(Dense(5, input_dim=9, activation='tanh'))
-        model.add(Dense(5, activation='tanh'))
+        model.add(Dense(5, input_dim=9, kernel_initializer='uniform', activation=activation))
+        model.add(Dense(5, kernel_initializer='uniform', activation=activation))
         model.add(Dense(1, activation='linear'))
-        # Compile model
-        optimizer = SGD(lr=learn_rate, momentum=momentum)
-        model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+
+    # Compile model
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         return model
 
-    def run_TuningLearningRateMomentum(self):
+    def run_TuningActivationFunction(self):
 
         # Fix random seed for reproducibility:
         seed = 7
         np.random.seed(seed)
 
         # Load dataset:
-        path = '/media/DATA/tmp/datasets/brazil/qgis/rain/'
+        path = '/home/david/DATA/'
         file = 'yearly_br_rain_var2d_OK.csv'
         df = pd.read_csv(os.path.join(path, file), sep=',', decimal='.')
 
         # Split into input (X) and output (Y) variables:
-        df2 = df[['36V', '36H', '89V', '89H', '166V', '166H', '190V', 'PCT36', 'PCT89']].copy()
-        x = df2[['36V', '36H', '89V', '89H', '166V', '166H', '190V', 'PCT36', 'PCT89']].copy()
+        df2 = df[['36V', '36H', '89V', '89H', '166V', '166H', '190V', 'PCT36', 'PCT89']]
+        # x = df2.reindex(columns=cols)
+        x = df2[['36V', '36H', '89V', '89H', '166V', '166H', '190V', 'PCT36', 'PCT89']]
         y = df[['sfcprcp']]
 
         # Scaling the input paramaters:
@@ -67,14 +68,13 @@ class TuningLearningRateMomentum:
         # Create the instance for KerasRegressor:
         model = KerasRegressor(build_fn=self.create_model, epochs=100, batch_size=10, verbose=0)
 
-        # Define the grid search parameters:
-        learn_rate = [0.001, 0.01, 0.1, 0.2, 0.3]
-        momentum = [0.0, 0.2, 0.4, 0.6, 0.8, 0.9]
-        param_grid = dict(learn_rate=learn_rate, momentum=momentum)
+        # Define the grid search parameters
+        activation = ['softmax', 'softplus', 'softsign', 'relu', 'tanh', 'sigmoid', 'hard_sigmoid', 'linear']
+        param_grid = dict(activation=activation)
         grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1)
         grid_result = grid.fit(x_train, y_train)
 
-        # Summarize results:
+        # summarize results
         print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
         means = grid_result.cv_results_['mean_test_score']
         stds = grid_result.cv_results_['std_test_score']
@@ -90,9 +90,9 @@ if __name__ == '__main__':
 
     tic()
 
-    training_model = TuningLearningRateMomentum()
-    grid_result = training_model.run_TuningLearningRateMomentum()
-    joblib.dump(grid_result, 'model_trained_learning_rate_momentum_A.pkl')
+    training_model = TuningActivationFunction()
+    grid_result = training_model.run_TuningActivationFunction()
+    joblib.dump(grid_result, 'model_trained_activation_function_A.pkl')
 
     tac()
 
